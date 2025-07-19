@@ -1,4 +1,8 @@
 # Plot MCP Server
+[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![UV](https://img.shields.io/badge/uv-package%20manager-green.svg)](https://docs.astral.sh/uv/)
+[![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-orange.svg)](https://github.com/modelcontextprotocol)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A comprehensive Model Context Protocol (MCP) server for advanced data visualization and plotting operations. This server enables LLMs to create professional-quality plots from various data sources with support for multiple plot types, data formats, and intelligent data handling.
 
