@@ -45,13 +45,11 @@ test = ["pytest>=7.0.0", "httpx", "pytest-cov>=4.0.0"]
 pandas-mcp = "src.server:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["implementation*", "mcp_handlers*", "server*"]
+where = ["."]
+include = ["src*"]
 
 [tool.setuptools.package-dir]
-"implementation" = "src/implementation"
-"mcp_handlers" = "src/mcp_handlers"
-"server" = "src/server"
+"" = "."
 
 [dependency-groups]
 dev = [
