@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional
 # Add current directory to path for relative imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from capabilities.plot_capabilities import (
+from implementation.plot_capabilities import (
     get_data_info,
     create_line_plot,
     create_bar_plot,
