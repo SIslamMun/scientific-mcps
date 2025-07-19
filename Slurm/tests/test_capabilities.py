@@ -13,7 +13,7 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from capabilities.slurm_handler import (
+from implementation.slurm_handler import (
     submit_slurm_job, 
     get_job_status,
     cancel_slurm_job,

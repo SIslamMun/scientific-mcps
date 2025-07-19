@@ -3,18 +3,24 @@ MCP handlers for Slurm job management.
 These handlers wrap the Slurm capabilities for MCP protocol compliance.
 """
 import json
+import sys
+import os
 from typing import Optional
-from .capabilities.job_submission import submit_slurm_job
-from .capabilities.job_status import get_job_status
-from .capabilities.job_cancellation import cancel_slurm_job
-from .capabilities.job_listing import list_slurm_jobs
-from .capabilities.cluster_info import get_slurm_info
-from .capabilities.job_details import get_job_details
-from .capabilities.job_output import get_job_output
-from .capabilities.queue_info import get_queue_info
-from .capabilities.array_jobs import submit_array_job
-from .capabilities.node_info import get_node_info
-from .capabilities.node_allocation import allocate_nodes, deallocate_nodes, get_allocation_status
+
+# Add current directory to path for relative imports
+sys.path.insert(0, os.path.dirname(__file__))
+
+from implementation.job_submission import submit_slurm_job
+from implementation.job_status import get_job_status
+from implementation.job_cancellation import cancel_slurm_job
+from implementation.job_listing import list_slurm_jobs
+from implementation.cluster_info import get_slurm_info
+from implementation.job_details import get_job_details
+from implementation.job_output import get_job_output
+from implementation.queue_info import get_queue_info
+from implementation.array_jobs import submit_array_job
+from implementation.node_info import get_node_info
+from implementation.node_allocation import allocate_nodes, deallocate_nodes, get_allocation_status
 
 
 def submit_slurm_job_handler(script_path: str, cores: int, memory: Optional[str] = None, 
@@ -263,12 +269,12 @@ def allocate_nodes_handler(nodes: int = 1, cores: int = 1, memory: Optional[str]
                           job_name: Optional[str] = None, immediate: bool = False) -> dict:
     """
     Handler wrapping the node allocation capability for MCP.
-    Returns allocation information or an error payload on failure.
+    Returns allocation results or an error payload on failure.
     
     Args:
         nodes: Number of nodes to allocate
         cores: Number of cores per node
-        memory: Memory requirement
+        memory: Memory requirement per node
         time_limit: Time limit for allocation
         partition: Slurm partition to use
         job_name: Name for the allocation
@@ -291,10 +297,10 @@ def allocate_nodes_handler(nodes: int = 1, cores: int = 1, memory: Optional[str]
 def deallocate_nodes_handler(allocation_id: str) -> dict:
     """
     Handler wrapping the node deallocation capability for MCP.
-    Returns deallocation status or an error payload on failure.
+    Returns deallocation results or an error payload on failure.
     
     Args:
-        allocation_id: The allocation ID to cancel
+        allocation_id: The allocation ID to deallocate
         
     Returns:
         MCP-compliant response dictionary
@@ -313,7 +319,7 @@ def deallocate_nodes_handler(allocation_id: str) -> dict:
 def get_allocation_status_handler(allocation_id: str) -> dict:
     """
     Handler wrapping the allocation status capability for MCP.
-    Returns allocation status information or an error payload on failure.
+    Returns allocation status or an error payload on failure.
     
     Args:
         allocation_id: The allocation ID to check
