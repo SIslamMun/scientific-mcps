@@ -21,7 +21,7 @@ from typing import Optional
 load_dotenv()
 
 # Import Phase 1 discoverability tools
-from implementation.discoverability import (
+from src.implementation.discoverability import (
     get_all_packages,
     get_package_info,
     get_list_repos,
@@ -31,7 +31,7 @@ from implementation.discoverability import (
 )
 
 # Import data models
-from implementation.models import (
+from src.implementation.models import (
     PackageCatalog,
     PackageInformation,
     RepositoryStatus,
