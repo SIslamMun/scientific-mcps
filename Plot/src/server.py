@@ -203,8 +203,13 @@ def main():
     Main entry point for the Plot MCP server.
     Supports both stdio and SSE transports based on environment variables.
     """
+    # Handle 'help' command (without dashes) by converting to --help
+    if len(sys.argv) > 1 and sys.argv[1] == "help":
+        sys.argv[1] = "--help"
+    
     parser = argparse.ArgumentParser(
-        description="Plot MCP Server - Data visualization server with comprehensive plotting capabilities"
+        description="Plot MCP Server - Data visualization server with comprehensive plotting capabilities",
+        prog="plot-mcp"
     )
     parser.add_argument(
         "--version", 
