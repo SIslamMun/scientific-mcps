@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Plot MCP Capability Test - Test the plotting capabilities of the MCP server.
+Plot MCP Capabi    # Test data info
+    print("Testing data info...")
+    info = get_data_info(csv_path)y Test - Test the plotting capabilities of the MCP server.
 """
 import os
 import sys
@@ -11,13 +13,13 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from plot.mcp_handlers import (
-    line_plot_handler,
-    bar_plot_handler,
-    scatter_plot_handler,
-    histogram_plot_handler,
-    heatmap_plot_handler,
-    data_info_handler
+from implementation.plot_capabilities import (
+    create_line_plot,
+    create_bar_plot,
+    create_scatter_plot,
+    create_histogram,
+    create_heatmap,
+    get_data_info
 )
 
 def get_temperature_data():
@@ -42,7 +44,7 @@ def test_plotting_capabilities():
     
     # Test data info
     print("\nTesting data info...")
-    info = data_info_handler(csv_path)
+    info = get_data_info(csv_path)
     if info["status"] == "success":
         print(f"Data shape: {info['shape']}")
         print(f"Columns: {info['columns']}")
@@ -52,7 +54,7 @@ def test_plotting_capabilities():
     
     # Test line plot with temperature data
     print("\nTesting line plot...")
-    result = line_plot_handler(
+    result = create_line_plot(
         csv_path, "year", "AverageTemperatureFahr", "Temperature Over Years", 
         os.path.join(output_dir, "temperature_line.png")
     )
@@ -63,7 +65,7 @@ def test_plotting_capabilities():
     
     # Test bar plot with temperature data
     print("\nTesting bar plot...")
-    result = bar_plot_handler(
+    result = create_bar_plot(
         csv_path, "Country", "AverageTemperatureFahr", "Average Temperature by Country", 
         os.path.join(output_dir, "temperature_bar.png")
     )
@@ -74,7 +76,7 @@ def test_plotting_capabilities():
     
     # Test scatter plot with temperature data
     print("\nTesting scatter plot...")
-    result = scatter_plot_handler(
+    result = create_scatter_plot(
         csv_path, "AverageTemperatureFahr", "AverageTemperatureUncertaintyFahr", "Temperature vs Uncertainty", 
         os.path.join(output_dir, "temp_uncertainty_scatter.png")
     )
@@ -85,7 +87,7 @@ def test_plotting_capabilities():
     
     # Test histogram with temperature data
     print("\nTesting histogram...")
-    result = histogram_plot_handler(
+    result = create_histogram(
         csv_path, "AverageTemperatureFahr", 30, "Temperature Distribution", 
         os.path.join(output_dir, "temperature_histogram.png")
     )
@@ -96,7 +98,7 @@ def test_plotting_capabilities():
     
     # Test heatmap with temperature data
     print("\nTesting heatmap...")
-    result = heatmap_plot_handler(
+    result = create_heatmap(
         csv_path, "Temperature Data Correlation", 
         os.path.join(output_dir, "temperature_heatmap.png")
     )

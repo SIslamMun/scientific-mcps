@@ -242,8 +242,7 @@ Pandas/
 ├── sample_data.csv             # Sample employee dataset (30 records)
 ├── sample_data_filtered.csv    # Filtered sample data output
 ├── src/                        # Source code
-│   ├── server.py               # Main MCP server with FastMCP
-│   ├── mcp_handlers.py         # MCP protocol handlers
+│   ├── server.py               # Main MCP server with FastMCP and direct implementation calls
 │   └── implementation/         # Core functionality modules
 │       ├── __init__.py         # Package initialization
 │       ├── data_io.py          # Universal data I/O operations
@@ -258,8 +257,7 @@ Pandas/
 │       └── output_formatter.py # Beautiful output formatting
 ├── tests/                      # Test suite
 │   ├── __init__.py             # Test package initialization
-│   ├── test_capabilities.py    # Unit tests for capabilities
-│   └── test_mcp_handlers.py    # Integration tests for MCP handlers
+│   └── test_capabilities.py    # Unit tests for capabilities
 └── docs/                       # Documentation
 ```
 
@@ -286,8 +284,8 @@ uv run pytest tests/ -v
 # Test capabilities
 uv run pytest tests/test_capabilities.py -v
 
-# Test MCP handlers
-uv run pytest tests/test_mcp_handlers.py -v
+# Test capabilities
+uv run pytest tests/test_capabilities.py -v
 ```
 
 ### Test Coverage

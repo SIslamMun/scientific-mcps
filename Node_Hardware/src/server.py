@@ -31,8 +31,10 @@ except ImportError:
 # Add current directory to path for relative imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-# Import handlers
-import mcp_handlers
+# Import implementation modules directly
+from implementation.hardware_summary import get_hardware_summary
+from implementation.remote_node_info import get_remote_node_info
+from implementation.system_info import get_system_info
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -119,7 +121,7 @@ async def get_node_info_tool(
     try:
         logger.info(f"Collecting comprehensive local hardware information: components={components}, exclude={exclude_components}")
         
-        return mcp_handlers.get_node_info_handler(
+        return get_hardware_summary(
             include_filters=components,
             exclude_filters=exclude_components
         )
@@ -180,7 +182,7 @@ async def get_remote_node_info_tool(
     try:
         logger.info(f"Collecting comprehensive remote hardware information from {hostname}: components={components}, exclude={exclude_components}")
         
-        return mcp_handlers.get_remote_node_info_handler(
+        return get_remote_node_info(
             hostname=hostname,
             username=username,
             port=port,
@@ -224,7 +226,7 @@ async def health_check_tool() -> dict:
     try:
         logger.info("Performing comprehensive health check and system diagnostics with advanced analysis")
         
-        return mcp_handlers.health_check_handler()
+        return get_system_info()
     except Exception as e:
         logger.error(f"Health check error: {e}")
         return {

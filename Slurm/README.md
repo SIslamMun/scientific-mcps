@@ -50,7 +50,7 @@ Following MCP best practices, this server provides intelligent, contextual assis
 - **Input Validation**: Comprehensive validation of script paths and resource requirements
 - **Error Handling**: Robust error handling with detailed error messages
 - **Multiple Transports**: Support for both stdio and SSE (Server-Sent Events) transports
-- **Modular Architecture**: Separated implementation modules for better maintainability
+- **Streamlined Architecture**: Direct implementation imports for better performance and maintainability
 
 ## Prerequisites
 
@@ -308,7 +308,7 @@ uv run pytest
 
 # Run specific test categories
 uv run pytest tests/test_capabilities.py
-uv run pytest tests/test_mcp_handlers.py
+uv run pytest tests/test_implementation.py
 
 # Run with coverage
 uv run pytest --cov=src --cov-report=html
@@ -383,9 +383,7 @@ The server provides comprehensive error handling with:
 Slurm/
 ├── src/
 │   ├── __init__.py              # Package initialization
-│   ├── __main__.py              # Direct execution entry point
-│   ├── server.py                # Main MCP server with enhanced tools
-│   ├── mcp_handlers.py          # MCP protocol handlers
+│   ├── server.py                # Main MCP server with streamlined tools
 │   └── implementation/          # Core implementation modules
 │       ├── __init__.py
 │       ├── job_submission.py    # Job submission functionality
@@ -404,7 +402,6 @@ Slurm/
 ├── tests/
 │   ├── __init__.py
 │   ├── test_capabilities.py     # Implementation tests
-│   ├── test_mcp_handlers.py     # Handler tests
 │   ├── test_integration.py      # Integration tests
 │   └── test_node_allocation.py  # Node allocation tests
 ├── docs/                        # Additional documentation

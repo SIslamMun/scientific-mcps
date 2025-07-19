@@ -460,7 +460,6 @@ uv run pytest
 
 # Run specific test categories
 uv run pytest tests/test_capabilities.py
-uv run pytest tests/test_mcp_handlers.py
 
 # Run with coverage
 uv run pytest --cov=src --cov-report=html
@@ -555,9 +554,7 @@ The server provides comprehensive error handling with:
 Node_Hardware/
 ├── src/
 │   ├── __init__.py              # Package initialization
-│   ├── __main__.py              # Direct execution entry point
-│   ├── server.py                # Main MCP server with tools
-│   ├── mcp_handlers.py          # MCP protocol handlers
+│   ├── server.py                # Main MCP server with tools and direct implementation calls
 │   └── implementation/          # Core implementation modules
 │       ├── __init__.py
 │       ├── output_formatter.py  # Beautiful response formatting
@@ -575,8 +572,7 @@ Node_Hardware/
 │       └── utils.py             # Utility functions
 ├── tests/
 │   ├── __init__.py
-│   ├── test_capabilities.py     # Capability tests
-│   └── test_mcp_handlers.py     # Handler tests
+│   └── test_capabilities.py     # Implementation tests
 ├── pyproject.toml               # Project configuration
 ├── pytest.ini                  # Test configuration
 └── README.md                    # This file

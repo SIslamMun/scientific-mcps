@@ -185,15 +185,14 @@ Plot/
 ├── output/                        # Generated plots directory
 ├── src/                           # Source code directory (restructured)
 │   ├── __init__.py                # Package init
-│   ├── server.py                  # Main MCP server with FastMCP
-│   ├── mcp_handlers.py            # MCP protocol handlers
+│   ├── server.py                  # Main MCP server with FastMCP and direct implementation calls
 │   └── implementation/            # Implementation modules
 │       ├── __init__.py
 │       └── plot_capabilities.py   # Core plotting functions
 ├── tests/                         # Comprehensive test suite
 │   ├── __init__.py
 │   ├── test_capabilities.py       # Unit tests for plotting capabilities
-│   ├── test_handlers.py           # Tests for MCP handlers
+│   ├── test_handlers.py           # Tests for plotting functions
 │   ├── test_integration.py        # Integration tests
 │   ├── test_plot_mcp.py           # Plot-specific MCP tests
 │   └── test_server.py             # Server functionality tests

@@ -22,7 +22,17 @@ from pathlib import Path
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-import mcp_handlers
+# Import implementation modules directly
+from implementation.job_submission import submit_slurm_job
+from implementation.job_status import get_job_status
+from implementation.job_cancellation import cancel_slurm_job
+from implementation.job_listing import list_slurm_jobs
+from implementation.cluster_info import get_slurm_info
+from implementation.job_details import get_job_details
+from implementation.job_output import get_job_output
+from implementation.queue_info import get_queue_info
+from implementation.array_jobs import submit_array_job
+from implementation.node_info import get_node_info
 
 
 class TestSlurmMCPPerformance:
@@ -105,7 +115,7 @@ echo "Done: $(date)"
         
         for _ in range(num_tests):
             start_time = time.time()
-            result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1)
+            result = submit_slurm_job(quick_script, cores=1)
             end_time = time.time()
             
             latency = end_time - start_time
@@ -113,7 +123,7 @@ echo "Done: $(date)"
             
             # Clean up job if submitted successfully
             if not result.get("isError") and "job_id" in result:
-                mcp_handlers.cancel_slurm_job_handler(str(result["job_id"]))
+                cancel_slurm_job(str(result["job_id"]))
         
         # Performance assertions
         avg_latency = statistics.mean(latencies)
@@ -133,7 +143,7 @@ echo "Done: $(date)"
     def test_job_status_query_performance(self, quick_script):
         """Test the performance of job status queries."""
         # First submit a job
-        result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1)
+        result = submit_slurm_job(quick_script, cores=1)
         if result.get("isError"):
             pytest.skip("Could not submit job for status testing")
             
@@ -145,7 +155,7 @@ echo "Done: $(date)"
             
             for _ in range(num_queries):
                 start_time = time.time()
-                status_result = mcp_handlers.check_job_status_handler(job_id)
+                status_result = get_job_status(job_id)
                 end_time = time.time()
                 
                 latency = end_time - start_time
@@ -166,7 +176,7 @@ echo "Done: $(date)"
             
         finally:
             # Cleanup
-            mcp_handlers.cancel_slurm_job_handler(job_id)
+            cancel_slurm_job(job_id)
 
     def test_concurrent_job_submissions(self, quick_script):
         """Test concurrent job submission performance."""
@@ -174,7 +184,7 @@ echo "Done: $(date)"
         submitted_jobs = []
         
         def submit_job():
-            result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1)
+            result = submit_slurm_job(quick_script, cores=1)
             return result, time.time()
         
         start_time = time.time()
@@ -204,7 +214,7 @@ echo "Done: $(date)"
         # Cleanup submitted jobs
         for job_id in submitted_jobs:
             try:
-                mcp_handlers.cancel_slurm_job_handler(job_id)
+                cancel_slurm_job(job_id)
             except Exception:
                 pass  # Best effort cleanup
         
@@ -219,7 +229,7 @@ echo "Done: $(date)"
         
         for _ in range(num_tests):
             start_time = time.time()
-            result = mcp_handlers.get_slurm_info_handler()
+            result = get_slurm_info()
             end_time = time.time()
             
             latency = end_time - start_time
@@ -242,7 +252,7 @@ echo "Done: $(date)"
         # Submit a few jobs first
         submitted_jobs = []
         for i in range(3):
-            result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1, job_name=f"perf_test_{i}")
+            result = submit_slurm_job(quick_script, cores=1, job_name=f"perf_test_{i}")
             if not result.get("isError") and "job_id" in result:
                 submitted_jobs.append(str(result["job_id"]))
         
@@ -252,7 +262,7 @@ echo "Done: $(date)"
             
             for _ in range(num_tests):
                 start_time = time.time()
-                result = mcp_handlers.list_slurm_jobs_handler()
+                result = list_slurm_jobs()
                 end_time = time.time()
                 
                 latency = end_time - start_time
@@ -272,7 +282,7 @@ echo "Done: $(date)"
             # Cleanup
             for job_id in submitted_jobs:
                 try:
-                    mcp_handlers.cancel_slurm_job_handler(job_id)
+                    cancel_slurm_job(job_id)
                 except Exception:
                     pass
 
@@ -283,7 +293,7 @@ echo "Done: $(date)"
         
         for _ in range(num_tests):
             start_time = time.time()
-            result = mcp_handlers.get_node_info_handler()
+            result = get_node_info()
             end_time = time.time()
             
             latency = end_time - start_time
@@ -306,7 +316,7 @@ echo "Done: $(date)"
         
         for _ in range(num_tests):
             start_time = time.time()
-            result = mcp_handlers.get_queue_info_handler()
+            result = get_queue_info()
             end_time = time.time()
             
             latency = end_time - start_time
@@ -328,7 +338,7 @@ echo "Done: $(date)"
         
         # Submit job
         submit_start = time.time()
-        result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1, job_name="lifecycle_test")
+        result = submit_slurm_job(quick_script, cores=1, job_name="lifecycle_test")
         submit_end = time.time()
         
         if result.get("isError"):
@@ -340,19 +350,19 @@ echo "Done: $(date)"
         try:
             # Query status
             status_start = time.time()
-            status_result = mcp_handlers.check_job_status_handler(job_id)
+            status_result = get_job_status(job_id)
             status_end = time.time()
             status_time = status_end - status_start
             
             # Get job details
             details_start = time.time()
-            details_result = mcp_handlers.get_job_details_handler(job_id)
+            details_result = get_job_details(job_id)
             details_end = time.time()
             details_time = details_end - details_start
             
             # Cancel job
             cancel_start = time.time()
-            cancel_result = mcp_handlers.cancel_slurm_job_handler(job_id)
+            cancel_result = cancel_slurm_job(job_id)
             cancel_end = time.time()
             cancel_time = cancel_end - cancel_start
             
@@ -375,7 +385,7 @@ echo "Done: $(date)"
         except Exception as e:
             # Cleanup on error
             try:
-                mcp_handlers.cancel_slurm_job_handler(job_id)
+                cancel_slurm_job(job_id)
             except Exception:
                 pass
             raise e
@@ -395,7 +405,7 @@ sleep 1
             os.chmod(script_path, 0o755)
             
             start_time = time.time()
-            result = mcp_handlers.submit_array_job_handler(
+            result = submit_array_job(
                 script_path, 
                 array_range="1-3", 
                 cores=1, 
@@ -412,7 +422,7 @@ sleep 1
             if not result.get("isError") and "job_id" in result:
                 job_id = str(result["job_id"])
                 try:
-                    mcp_handlers.cancel_slurm_job_handler(job_id)
+                    cancel_slurm_job(job_id)
                 except Exception:
                     pass
             
@@ -432,7 +442,7 @@ sleep 1
         submitted_jobs = []
         
         def submit_and_track():
-            result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1)
+            result = submit_slurm_job(quick_script, cores=1)
             if not result.get("isError") and "job_id" in result:
                 return str(result["job_id"])
             return None
@@ -476,7 +486,7 @@ sleep 1
         cleanup_start = time.time()
         for job_id in submitted_jobs:
             try:
-                mcp_handlers.cancel_slurm_job_handler(job_id)
+                cancel_slurm_job(job_id)
             except Exception:
                 pass
         cleanup_time = time.time() - cleanup_start
@@ -498,14 +508,14 @@ sleep 1
         operations = 0
         for _ in range(20):
             # Submit and cancel job
-            result = mcp_handlers.submit_slurm_job_handler(quick_script, cores=1)
+            result = submit_slurm_job(quick_script, cores=1)
             if not result.get("isError") and "job_id" in result:
                 job_id = str(result["job_id"])
-                mcp_handlers.cancel_slurm_job_handler(job_id)
+                cancel_slurm_job(job_id)
                 operations += 1
             
             # Query cluster info
-            mcp_handlers.get_slurm_info_handler()
+            get_slurm_info()
             operations += 1
         
         final_memory = process.memory_info().rss / 1024 / 1024  # MB

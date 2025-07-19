@@ -30,8 +30,18 @@ except ImportError:
 # Add current directory to path for relative imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-# Import handlers
-import mcp_handlers
+# Import implementation modules directly
+from implementation.job_submission import submit_slurm_job
+from implementation.job_status import get_job_status
+from implementation.job_cancellation import cancel_slurm_job
+from implementation.job_listing import list_slurm_jobs
+from implementation.cluster_info import get_slurm_info
+from implementation.job_details import get_job_details
+from implementation.job_output import get_job_output
+from implementation.queue_info import get_queue_info
+from implementation.array_jobs import submit_array_job
+from implementation.node_info import get_node_info
+from implementation.node_allocation import allocate_nodes, deallocate_nodes, get_allocation_status
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -115,7 +125,7 @@ async def submit_slurm_job_tool(
     try:
         logger.info(f"Submitting comprehensive Slurm job: {script_path} with {cores} cores and advanced resource optimization")
         
-        return mcp_handlers.submit_slurm_job_handler(
+        return submit_slurm_job(
             script_path, cores, memory, time_limit, job_name, partition
         )
     except Exception as e:
@@ -186,7 +196,7 @@ async def check_job_status_tool(job_id: str) -> dict:
     try:
         logger.info(f"Checking comprehensive status for job: {job_id} with advanced monitoring and intelligent analysis")
         
-        return mcp_handlers.check_job_status_handler(job_id)
+        return get_job_status(job_id)
     except Exception as e:
         logger.error(f"Job status check error: {e}")
         return {
@@ -245,7 +255,7 @@ async def cancel_slurm_job_tool(job_id: str) -> dict:
         Dictionary with cancellation results
     """
     logger.info(f"Cancelling job: {job_id}")
-    return mcp_handlers.cancel_slurm_job_handler(job_id)
+    return cancel_slurm_job(job_id)
 
 
 @mcp.tool(
@@ -305,7 +315,7 @@ async def list_slurm_jobs_tool(user: str = None, state: str = None) -> dict:
         Dictionary with list of jobs
     """
     logger.info(f"Listing jobs for user: {user}, state: {state}")
-    return mcp_handlers.list_slurm_jobs_handler(user, state)
+    return list_slurm_jobs(user, state)
 
 
 @mcp.tool(
@@ -364,7 +374,7 @@ async def get_slurm_info_tool() -> dict:
         Dictionary with cluster information
     """
     logger.info("Getting Slurm cluster information")
-    return mcp_handlers.get_slurm_info_handler()
+    return get_slurm_info()
 
 
 @mcp.tool(
@@ -416,7 +426,7 @@ async def get_job_details_tool(job_id: str) -> dict:
         Dictionary with detailed job information
     """
     logger.info(f"Getting detailed information for job: {job_id}")
-    return mcp_handlers.get_job_details_handler(job_id)
+    return get_job_details(job_id)
 
 
 @mcp.tool(
@@ -469,7 +479,7 @@ async def get_job_output_tool(job_id: str, output_type: str = "stdout") -> dict:
         Dictionary with job output content
     """
     logger.info(f"Getting {output_type} for job: {job_id}")
-    return mcp_handlers.get_job_output_handler(job_id, output_type)
+    return get_job_output(job_id, output_type)
 
 
 @mcp.tool(
@@ -521,7 +531,7 @@ async def get_queue_info_tool(partition: str = None) -> dict:
         Dictionary with queue information
     """
     logger.info(f"Getting queue information for partition: {partition}")
-    return mcp_handlers.get_queue_info_handler(partition)
+    return get_queue_info(partition)
 
 
 @mcp.tool(
@@ -594,7 +604,7 @@ async def submit_array_job_tool(
         Dictionary with array job submission results
     """
     logger.info(f"Submitting array job: {script_path}, range: {array_range}, cores: {cores}")
-    return mcp_handlers.submit_array_job_handler(
+    return submit_array_job(
         script_path, array_range, cores, memory, time_limit, job_name, partition
     )
 
@@ -648,7 +658,7 @@ async def get_node_info_tool() -> dict:
         Dictionary with node information
     """
     logger.info("Getting cluster node information")
-    return mcp_handlers.get_node_info_handler()
+    return get_node_info()
 
 
 @mcp.tool(
@@ -721,7 +731,7 @@ async def allocate_slurm_nodes_tool(
         Dictionary with allocation information
     """
     logger.info(f"Allocating {nodes} nodes with {cores} cores each")
-    return mcp_handlers.allocate_nodes_handler(nodes, cores, memory, time_limit, partition, job_name, immediate)
+    return allocate_nodes(nodes, cores, memory, time_limit, partition, job_name, immediate)
 
 
 @mcp.tool(
@@ -773,7 +783,7 @@ async def deallocate_slurm_nodes_tool(allocation_id: str) -> dict:
         Dictionary with deallocation status
     """
     logger.info(f"Deallocating allocation {allocation_id}")
-    return mcp_handlers.deallocate_nodes_handler(allocation_id)
+    return deallocate_nodes(allocation_id)
 
 
 @mcp.tool(
@@ -825,7 +835,7 @@ async def get_allocation_status_tool(allocation_id: str) -> dict:
         Dictionary with allocation status information
     """
     logger.info(f"Checking status of allocation {allocation_id}")
-    return mcp_handlers.get_allocation_status_handler(allocation_id)
+    return get_allocation_status(allocation_id)
 
 
 def main():

@@ -12,8 +12,17 @@ from unittest.mock import patch, MagicMock
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-# Import handler functions instead of MCP tools
-import mcp_handlers
+# Import implementation modules directly
+from implementation.job_submission import submit_slurm_job
+from implementation.job_status import get_job_status
+from implementation.job_cancellation import cancel_slurm_job
+from implementation.job_listing import list_slurm_jobs
+from implementation.cluster_info import get_slurm_info
+from implementation.job_details import get_job_details
+from implementation.job_output import get_job_output
+from implementation.queue_info import get_queue_info
+from implementation.array_jobs import submit_array_job
+from implementation.node_info import get_node_info
 
 
 class TestServerTools:
@@ -22,7 +31,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_submit_job_tool_success(self, temp_script, valid_cores):
         """Test successful job submission through MCP tool."""
-        result = mcp_handlers.submit_slurm_job_handler(temp_script, valid_cores)
+        result = submit_slurm_job(temp_script, valid_cores)
         
         assert isinstance(result, dict)
         # Should either be a success response or error response
@@ -34,7 +43,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_submit_job_tool_enhanced(self, temp_script, job_parameters):
         """Test enhanced job submission through MCP tool."""
-        result = mcp_handlers.submit_slurm_job_handler(
+        result = submit_slurm_job(
             temp_script, 
             cores=4,
             memory=job_parameters["memory"],
@@ -55,24 +64,19 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_submit_job_tool_invalid_file(self, valid_cores):
         """Test job submission tool with invalid file."""
-        result = mcp_handlers.submit_slurm_job_handler("nonexistent.sh", valid_cores)
-        
-        assert isinstance(result, dict)
-        # Should handle error gracefully
-        assert "isError" in result or "error" in result
+        with pytest.raises(FileNotFoundError):
+            submit_slurm_job("nonexistent.sh", valid_cores)
 
     @pytest.mark.asyncio
     async def test_submit_job_tool_invalid_cores(self, temp_script):
         """Test job submission tool with invalid cores."""
-        result = mcp_handlers.submit_slurm_job_handler(temp_script, 0)
-        
-        assert isinstance(result, dict)
-        assert "isError" in result or "error" in result
+        with pytest.raises(ValueError):
+            submit_slurm_job(temp_script, 0)
 
     @pytest.mark.asyncio
     async def test_check_status_tool(self, sample_job_id):
         """Test job status checking tool."""
-        result = mcp_handlers.check_job_status_handler(sample_job_id)
+        result = get_job_status(sample_job_id)
         
         assert isinstance(result, dict)
         # Should either be a success response or error response
@@ -84,7 +88,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_cancel_job_tool(self, sample_job_id):
         """Test job cancellation tool."""
-        result = mcp_handlers.cancel_slurm_job_handler(sample_job_id)
+        result = cancel_slurm_job(sample_job_id)
         
         assert isinstance(result, dict)
         # Should handle cancellation request
@@ -94,7 +98,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_list_jobs_tool(self):
         """Test job listing tool."""
-        result = mcp_handlers.list_slurm_jobs_handler()
+        result = list_slurm_jobs()
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -103,7 +107,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_list_jobs_tool_with_filters(self):
         """Test job listing tool with filters."""
-        result = mcp_handlers.list_slurm_jobs_handler(user="testuser", state="RUNNING")
+        result = list_slurm_jobs(user="testuser", state="RUNNING")
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -113,7 +117,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_get_slurm_info_tool(self):
         """Test cluster info tool."""
-        result = mcp_handlers.get_slurm_info_handler()
+        result = get_slurm_info()
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -122,7 +126,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_get_job_details_tool(self, sample_job_id):
         """Test job details tool."""
-        result = mcp_handlers.get_job_details_handler(sample_job_id)
+        result = get_job_details(sample_job_id)
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -132,7 +136,7 @@ class TestServerTools:
     async def test_get_job_output_tool(self, sample_job_id):
         """Test job output tool."""
         for output_type in ["stdout", "stderr"]:
-            result = mcp_handlers.get_job_output_handler(sample_job_id, output_type)
+            result = get_job_output(sample_job_id, output_type)
             
             assert isinstance(result, dict)
             if not result.get("isError"):
@@ -141,7 +145,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_get_queue_info_tool(self):
         """Test queue info tool."""
-        result = mcp_handlers.get_queue_info_handler()
+        result = get_queue_info()
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -150,7 +154,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_get_queue_info_tool_with_partition(self):
         """Test queue info tool with partition filter."""
-        result = mcp_handlers.get_queue_info_handler(partition="compute")
+        result = get_queue_info(partition="compute")
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -159,7 +163,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_submit_array_job_tool(self, array_script, array_parameters):
         """Test array job submission tool."""
-        result = mcp_handlers.submit_array_job_handler(
+        result = submit_array_job(
             array_script,
             array_parameters["array_range"],
             cores=array_parameters["cores"],
@@ -176,7 +180,7 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_get_node_info_tool(self):
         """Test node info tool."""
-        result = mcp_handlers.get_node_info_handler()
+        result = get_node_info()
         
         assert isinstance(result, dict)
         if not result.get("isError"):
@@ -186,11 +190,11 @@ class TestServerTools:
     async def test_tool_parameter_defaults(self, temp_script):
         """Test that tools handle default parameters correctly."""
         # Test submit job with minimal parameters
-        result = mcp_handlers.submit_slurm_job_handler(temp_script, cores=1)
+        result = submit_slurm_job(temp_script, cores=1)
         assert isinstance(result, dict)
         
         # Test submit job with default memory and time
-        result = mcp_handlers.submit_slurm_job_handler(temp_script, cores=1, memory="1GB")
+        result = submit_slurm_job(temp_script, cores=1, memory="1GB")
         assert isinstance(result, dict)
 
     @pytest.mark.asyncio
@@ -198,19 +202,18 @@ class TestServerTools:
         """Test parameter validation in tools."""
         # Test with missing required parameters
         with pytest.raises(TypeError):
-            mcp_handlers.submit_slurm_job_handler()  # Missing required parameters
+            submit_slurm_job()  # Missing required parameters
         
         # Test with invalid parameter types
-        result = mcp_handlers.submit_slurm_job_handler("script.sh", "invalid_cores")
-        assert isinstance(result, dict)
-        # Should handle type error gracefully
+        with pytest.raises((FileNotFoundError, TypeError)):
+            submit_slurm_job("script.sh", "invalid_cores")
 
     @pytest.mark.asyncio
     async def test_concurrent_tool_execution(self, temp_script):
         """Test concurrent execution of tools."""
         # Submit multiple jobs concurrently using ThreadPoolExecutor
         def run_submit_job(script, cores, job_name):
-            return mcp_handlers.submit_slurm_job_handler(script, cores=cores, job_name=job_name)
+            return submit_slurm_job(script, cores=cores, job_name=job_name)
         
         with ThreadPoolExecutor(max_workers=3) as executor:
             futures = []
@@ -228,55 +231,62 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_tool_error_handling(self):
         """Test error handling in tools."""
-        # Test with various error conditions using handler functions
-        error_scenarios = [
-            ("submit_slurm_job_handler", ["nonexistent.sh"], {"cores": 1}),
-            ("check_job_status_handler", ["invalid_job_id"], {}),
-            ("cancel_slurm_job_handler", ["invalid_job_id"], {}),
-            ("get_job_details_handler", ["invalid_job_id"], {}),
-        ]
-        
-        for handler_name, args, kwargs in error_scenarios:
-            try:
-                handler_func = getattr(mcp_handlers, handler_name)
-                result = handler_func(*args, **kwargs)
-                assert isinstance(result, dict)
-                # Should handle errors gracefully
-            except Exception as e:
-                # Exception handling is also acceptable
-                assert isinstance(e, Exception)
+        # Test with various error conditions using direct function calls
+        try:
+            result = submit_slurm_job("nonexistent.sh", cores=1)
+            assert isinstance(result, dict)
+        except Exception as e:
+            assert isinstance(e, Exception)
+            
+        try:
+            result = get_job_status("invalid_job_id")
+            assert isinstance(result, dict)
+        except Exception as e:
+            assert isinstance(e, Exception)
+            
+        try:
+            result = cancel_slurm_job("invalid_job_id")
+            assert isinstance(result, dict)
+        except Exception as e:
+            assert isinstance(e, Exception)
+            
+        try:
+            result = get_job_details("invalid_job_id")
+            assert isinstance(result, dict)
+        except Exception as e:
+            assert isinstance(e, Exception)
 
     @pytest.mark.asyncio
     async def test_integration_workflow_through_tools(self, temp_script):
         """Test complete workflow through MCP handler functions."""
         # Submit job
-        submit_result = mcp_handlers.submit_slurm_job_handler(temp_script, cores=2, job_name="integration_test")
+        submit_result = submit_slurm_job(temp_script, cores=2, job_name="integration_test")
         assert isinstance(submit_result, dict)
         
         if not submit_result.get("isError") and "job_id" in submit_result:
             job_id = submit_result["job_id"]
             
             # Check status
-            status_result = mcp_handlers.check_job_status_handler(job_id)
+            status_result = get_job_status(job_id)
             assert isinstance(status_result, dict)
             
             # Get details
-            details_result = mcp_handlers.get_job_details_handler(job_id)
+            details_result = get_job_details(job_id)
             assert isinstance(details_result, dict)
             
             # Try to get output
-            output_result = mcp_handlers.get_job_output_handler(job_id, output_type="stdout")
+            output_result = get_job_output(job_id, output_type="stdout")
             assert isinstance(output_result, dict)
             
             # Cancel job
-            cancel_result = mcp_handlers.cancel_slurm_job_handler(job_id)
+            cancel_result = cancel_slurm_job(job_id)
             assert isinstance(cancel_result, dict)
 
     @pytest.mark.asyncio
     async def test_tool_logging(self, temp_script, caplog):
         """Test that handler functions produce appropriate log messages."""
         with caplog.at_level("INFO"):
-            result = mcp_handlers.submit_slurm_job_handler(temp_script, cores=1)
+            result = submit_slurm_job(temp_script, cores=1)
             
             # Should have logged the operation
             assert len(caplog.records) >= 0  # Logs may vary based on implementation
@@ -285,32 +295,39 @@ class TestServerTools:
     @pytest.mark.asyncio
     async def test_tool_response_consistency(self, temp_script, sample_job_id):
         """Test that all handler functions return consistent response formats."""
-        handler_tests = [
-            ("submit_slurm_job_handler", [temp_script], {"cores": 1}),
-            ("check_job_status_handler", [sample_job_id], {}),
-            ("list_slurm_jobs_handler", [], {}),
-            ("get_slurm_info_handler", [], {}),
-            ("get_node_info_handler", [], {}),
-        ]
+        # Test submit_slurm_job
+        result = submit_slurm_job(temp_script, cores=1)
+        assert isinstance(result, dict)
         
-        for handler_name, args, kwargs in handler_tests:
-            handler_func = getattr(mcp_handlers, handler_name)
-            result = handler_func(*args, **kwargs)
-            assert isinstance(result, dict)
-            
-            # All results should be dictionaries
-            # and should not contain both success and error indicators
-            if result.get("isError"):
-                assert "content" in result or "error" in result
-            else:
-                # Success responses should have meaningful data
-                assert len(result) > 0
+        # Test get_job_status
+        result = get_job_status(sample_job_id)
+        assert isinstance(result, dict)
+        
+        # Test list_slurm_jobs
+        result = list_slurm_jobs()
+        assert isinstance(result, dict)
+        
+        # Test get_slurm_info
+        result = get_slurm_info()
+        assert isinstance(result, dict)
+        
+        # Test get_node_info
+        result = get_node_info()
+        assert isinstance(result, dict)
+        
+        # All results should be dictionaries
+        # and should not contain both success and error indicators
+        if result.get("isError"):
+            assert "content" in result or "error" in result
+        else:
+            # Success responses should have meaningful data
+            assert len(result) > 0
 
     @pytest.mark.asyncio
     async def test_array_job_workflow(self, array_script):
         """Test array job workflow through handler functions."""
         # Submit array job
-        result = mcp_handlers.submit_array_job_handler(
+        result = submit_array_job(
             array_script,
             array_range="1-3",
             cores=1,
@@ -325,11 +342,11 @@ class TestServerTools:
             array_job_id = result["array_job_id"]
             
             # Check status of array job
-            status_result = mcp_handlers.check_job_status_handler(array_job_id)
+            status_result = get_job_status(array_job_id)
             assert isinstance(status_result, dict)
             
             # Try to cancel array job
-            cancel_result = mcp_handlers.cancel_slurm_job_handler(array_job_id)
+            cancel_result = cancel_slurm_job(array_job_id)
             assert isinstance(cancel_result, dict)
 
     @pytest.mark.asyncio
@@ -338,7 +355,7 @@ class TestServerTools:
         # Test with a reasonable timeout
         try:
             def run_submit():
-                return mcp_handlers.submit_slurm_job_handler(temp_script, cores=1)
+                return submit_slurm_job(temp_script, cores=1)
             
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(run_submit)
@@ -349,26 +366,25 @@ class TestServerTools:
             assert isinstance(e, Exception)
 
     def test_tool_documentation(self):
-        """Test that all handler functions have proper documentation."""
-        handlers = [
-            "submit_slurm_job_handler",
-            "check_job_status_handler", 
-            "cancel_slurm_job_handler",
-            "list_slurm_jobs_handler",
-            "get_slurm_info_handler",
-            "get_job_details_handler",
-            "get_job_output_handler",
-            "get_queue_info_handler",
-            "submit_array_job_handler",
-            "get_node_info_handler"
+        """Test that all implementation functions have proper documentation."""
+        functions = [
+            submit_slurm_job,
+            get_job_status, 
+            cancel_slurm_job,
+            list_slurm_jobs,
+            get_slurm_info,
+            get_job_details,
+            get_job_output,
+            get_queue_info,
+            submit_array_job,
+            get_node_info
         ]
         
-        for handler_name in handlers:
-            # Check that each handler exists and has documentation
-            handler_func = getattr(mcp_handlers, handler_name, None)
-            assert handler_func is not None, f"Handler {handler_name} not found"
+        for func in functions:
+            # Check that each function exists and has documentation
+            assert func is not None, f"Function {func.__name__} not found"
             
             # Check that function has a docstring (optional check since some may not have detailed docs)
-            if hasattr(handler_func, '__doc__') and handler_func.__doc__:
-                docstring = handler_func.__doc__.strip().lower()
+            if hasattr(func, '__doc__') and func.__doc__:
+                docstring = func.__doc__.strip().lower()
                 assert len(docstring) > 0
