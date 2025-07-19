@@ -7,7 +7,7 @@ from typing import Optional, List, Any, Dict
 
 # Import the beautiful formatter
 try:
-    from .utils.output_formatter import create_beautiful_response
+    from implementation.output_formatter import create_beautiful_response
 except ImportError:
     # Fallback for development/testing
     def create_beautiful_response(operation: str, success: bool, data=None, **kwargs):
@@ -17,15 +17,15 @@ except ImportError:
             "isError": not success
         }
 
-from .capabilities.data_io import load_data_file, save_data_file
-from .capabilities.statistics import get_statistical_summary, get_correlation_analysis
-from .capabilities.data_cleaning import handle_missing_data, clean_data
-from .capabilities.data_profiling import profile_data
-from .capabilities.transformations import groupby_operations, merge_datasets, create_pivot_table
-from .capabilities.time_series import time_series_operations
-from .capabilities.memory_optimization import optimize_memory_usage
-from .capabilities.validation import validate_data, hypothesis_testing
-from .capabilities.filtering import filter_data
+from implementation.data_io import load_data_file, save_data_file
+from implementation.pandas_statistics import get_statistical_summary, get_correlation_analysis
+from implementation.data_cleaning import handle_missing_data, clean_data
+from implementation.data_profiling import profile_data
+from implementation.transformations import groupby_operations, merge_datasets, create_pivot_table
+from implementation.time_series import time_series_operations
+from implementation.memory_optimization import optimize_memory_usage
+from implementation.validation import validate_data, hypothesis_testing
+from implementation.filtering import filter_data
 
 
 def load_data_handler(file_path: str, file_format: Optional[str] = None,
