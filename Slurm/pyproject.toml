@@ -33,14 +33,9 @@ dependencies = [
 test = ["pytest>=7.0.0", "httpx", "pytest-cov>=4.0.0"]
 
 [project.scripts]
-slurm-mcp = "src.server:main"
+slurm-mcp = "server:main"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
 
-[tool.setuptools.package-dir]
-"" = "."
 
 [dependency-groups]
 dev = [
