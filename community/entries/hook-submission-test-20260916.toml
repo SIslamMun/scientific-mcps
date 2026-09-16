@@ -1,0 +1,11 @@
+name = "hook-submission-test-20260916"
+description = "Temporary CLIO Kit public contribution acceptance test; not a production plugin."
+category = "community"
+keywords = []
+maintainer = "SIslamMun"
+
+[source]
+type = "github"
+repo = "SIslamMun/scientific-mcps"
+ref = "test/hook-source-db6d7b66"
+sha = "dda1f177fb29777d8e1f32e19499556c683842b4"
